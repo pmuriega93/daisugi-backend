@@ -25,12 +25,12 @@ export class MailerService {
     }
 
     async sendEmail(dto: SendEmailDto) {
-        const { from, recipients, subject, html, placeholderReplacement } = dto;
+        const { recipients, subject, html, placeholderReplacement } = dto;
 
         const transport = this.mailTransport();
 
         const options: Mail.Options = {
-            from: from ?? {
+            from: dto.from ?? {
                 name: this.configService.get<string>('APP_NAME'),
                 address: this.configService.get<string>('DEFAULT_EMAIL_FROM')
             },

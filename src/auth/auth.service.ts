@@ -23,12 +23,15 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserDto, admin?: User) {
     try {
-      const { password, ...userData } = createUserDto;
+      const { password, roles, ...userData } = createUserDto;
+
+      const userRoles = admin ? ['user'] : ['admin']
 
       const user = this.userRepository.create({
         ...userData,
+        roles: userRoles,
         password: bcrypt.hashSync(password, 10),
       });
 
@@ -39,7 +42,6 @@ export class AuthService {
         ...user,
         token: this.getJwtToken({ id: user.id }),
       };
-      // TODO: Retornar el JWT de acceso
     } catch (error) {
       this.handleDBErrors(error);
     }
@@ -54,10 +56,10 @@ export class AuthService {
     });
 
     if (!user)
-      throw new UnauthorizedException('Credentials are not valid (email)');
+      throw new UnauthorizedException('Credentials are not valid');
 
     if (!bcrypt.compareSync(password, user.password))
-      throw new UnauthorizedException('Credentials are not valid (password)');
+      throw new UnauthorizedException('Credentials are not valid');
 
     return {
       ...user,

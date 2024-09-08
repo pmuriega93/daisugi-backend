@@ -30,8 +30,12 @@ export class ClientsController {
   }
 
   @Get()
-  findAll(@Query() paginationDto: PaginationDto) {
-    return this.clientsService.findAll(paginationDto);
+  @Auth()
+  findByUser(
+    @Query() paginationDto: PaginationDto,
+    @GetUser() user: User
+  ) {
+    return this.clientsService.findAll(paginationDto, user);
   }
 
   @Get(':id')

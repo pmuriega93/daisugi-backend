@@ -20,9 +20,6 @@ export class ClientsService {
     @InjectRepository(Client)
     private readonly clientRepository: Repository<Client>,
 
-    // @InjectRepository(ProductImage)
-    // private readonly productImageRepository: Repository<ProductImage>,
-
     private readonly dataSource: DataSource,
   ) {}
 
@@ -35,18 +32,23 @@ export class ClientsService {
       });
 
       await this.clientRepository.save(client);
+
     } catch (error) {
       this.handleDBExceptions(error);
     }
   }
 
-  async findAll(paginationDto: PaginationDto) {
+  async findAll(paginationDto: PaginationDto, user?: User) {
     const { limit = 10, offset = 0 } = paginationDto;
 
     const clients = await this.clientRepository.find({
       take: limit,
       skip: offset,
     });
+
+    if (user) {
+      return clients.filter(client => client.user.id === user.id)
+    }
 
     return clients;
   }
@@ -56,20 +58,10 @@ export class ClientsService {
 
     if ( isUUID(term) ) {
       client = await this.clientRepository.findOneBy({ id: term });
-    } else {
-      const queryBuilder = this.clientRepository.createQueryBuilder('prod'); 
-      client = await queryBuilder
-        .where('UPPER(title) =:title or slug =:slug', {
-          title: term.toUpperCase(),
-          slug: term.toLowerCase(),
-        })
-        .leftJoinAndSelect('prod.images','prodImages')
-        .getOne();
-    }
-
+    } 
 
     if ( !client ) 
-      throw new NotFoundException(`Product with ${ term } not found`);
+      throw new NotFoundException(`Client with id ${ term } not found`);
 
     return client;
   }
@@ -101,8 +93,8 @@ export class ClientsService {
   }
 
   async remove(id: string) {
-    const product = await this.findOne( id );
-    await this.clientRepository.remove( product );
+    const client = await this.findOne( id );
+    await this.clientRepository.remove( client );
   }
 
 

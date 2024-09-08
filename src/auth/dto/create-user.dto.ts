@@ -1,5 +1,8 @@
 import {
+  ArrayMinSize,
+  IsArray,
   IsEmail,
+  IsOptional,
   IsString,
   Matches,
   MaxLength,
@@ -16,11 +19,17 @@ export class CreateUserDto {
   @MaxLength(50)
   @Matches(/(?:(?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
     message:
-      'The password must have a Uppercase, lowercase letter and a number',
+      'El password debe contener una mayúscula, una minúscula y algún caracter especial',
   })
   password: string;
 
   @IsString()
   @MinLength(1)
   fullName: string;
+
+  @IsArray()
+  @IsString({ each: true})
+  @ArrayMinSize(1)
+  @IsOptional()
+  roles?: string[]
 }
