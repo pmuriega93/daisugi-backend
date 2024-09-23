@@ -8,14 +8,14 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { User } from './entities/user.entity';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { MailerService } from 'src/mailer/mailer.service';
+import { ResetToken } from './entities/reset-token.entity';
 
 @Module({
-  controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
   imports: [
     ConfigModule,
 
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, ResetToken]),
 
     PassportModule.register({ defaultStrategy: 'jwt' }),
 
@@ -40,6 +40,8 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     // }
     // })
   ],
+  controllers: [AuthController],
+  providers: [AuthService, JwtStrategy, MailerService],
   exports: [TypeOrmModule, JwtStrategy, PassportModule, JwtModule],
 })
 export class AuthModule {}

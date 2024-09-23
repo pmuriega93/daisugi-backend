@@ -48,4 +48,18 @@ export class MailerService {
             
         }
     }
+
+    async sendPasswordResetEmail(to: string, token: string) {
+        const transport = this.mailTransport();
+
+        const resetLink = `${process.env.CLIENT_URL}/reset-password?token=${token}`;
+        const mailOptions = {
+            from: 'Auth backend service',
+            to,
+            subject: 'Reseteo de contraseña',
+            html: `<p>Solicitaste un cambio de contraseña. Hacé click en el link para resetear tu contraseña:</p><p><a href="${resetLink}">Resetear contraseña</a></p>`
+        }
+
+        await transport.sendMail(mailOptions);
+    }
 }

@@ -6,6 +6,7 @@ import {
   UseGuards,
   Req,
   Headers,
+  Patch,
   // SetMetadata,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -15,10 +16,12 @@ import { AuthService } from './auth.service';
 import { RawHeaders, GetUser, Auth } from './decorators';
 import { RoleProtected } from './decorators/role-protected.decorator';
 
-import { CreateUserDto, LoginUserDto } from './dto';
+import { ChangePasswordDto, CreateUserDto, LoginUserDto } from './dto';
 import { User } from './entities/user.entity';
 import { UserRoleGuard } from './guards/user-role.guard';
 import { ValidRoles } from './interfaces';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -49,8 +52,32 @@ export class AuthController {
     return this.authService.checkAuthStatus(user);
   }
 
-  // @Patch('change-password')
+  @Patch('change-password')
+  @Auth()
+  changePassword(
+    @Body() changePasswordDto: ChangePasswordDto,
+    @GetUser() user: User
+  ) {
+    return this.authService.changePassword(user, changePasswordDto);
+  }
 
+
+  @Post('forgot-password')
+  async forgotPassword(
+    @Body() forgotPasswordDto: ForgotPasswordDto,
+  ) {
+    return this.authService.forgotPassword(forgotPasswordDto.email)
+  }
+
+  @Patch('reset-password')
+  async resetPassword(
+    @Body() resetPasswordDto: ResetPasswordDto,
+  ) {
+    return this.authService.resetPassword(
+      resetPasswordDto.newPassword,
+      resetPasswordDto.resetToken
+    )
+  }
 
   @Get('private')
   @UseGuards(AuthGuard())
