@@ -7,6 +7,8 @@ import {
   Req,
   Headers,
   Patch,
+  ParseUUIDPipe,
+  Param,
   // SetMetadata,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -22,6 +24,7 @@ import { UserRoleGuard } from './guards/user-role.guard';
 import { ValidRoles } from './interfaces';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { UpdateClientDto } from 'src/clients/dto/update-client.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -44,6 +47,15 @@ export class AuthController {
   @Post('login')
   loginUser(@Body() loginUserDto: LoginUserDto) {
     return this.authService.login(loginUserDto);
+  }
+
+  @Patch(':id')
+  @Auth()
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateClientDto: UpdateClientDto,
+  ) {
+    return this.authService.updateUser(id, updateClientDto);
   }
 
   @Get('check-status')

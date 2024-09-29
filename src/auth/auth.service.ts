@@ -17,6 +17,8 @@ import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { nanoid } from 'nanoid';
 import { ResetToken } from './entities/reset-token.entity';
 import { MailerService } from 'src/mailer/mailer.service';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { isUUID } from 'class-validator';
 
 @Injectable()
 export class AuthService {
@@ -25,7 +27,7 @@ export class AuthService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(ResetToken)
     private readonly resetTokenRepository: Repository<ResetToken>,
-    
+
     private readonly jwtService: JwtService,
     private readonly mailerService: MailerService
   ) {}
@@ -59,7 +61,7 @@ export class AuthService {
 
     const user = await this.userRepository.findOne({
       where: { email },
-      select: { email: true, password: true, id: true }, //! OJO!
+      select: { email: true, password: true, fullName: true, id: true, roles: true }, //! OJO!
     });
 
     if (!user)
@@ -67,6 +69,8 @@ export class AuthService {
 
     if (!bcrypt.compareSync(password, user.password))
       throw new UnauthorizedException('Credenciales incorrectas');
+
+    delete user.password;
 
     return {
       ...user,
@@ -122,6 +126,29 @@ export class AuthService {
     }
 
     return { message: 'Si el usuario existe, recibirá un correo electrónico ' }
+  }
+
+  async updateUser(id: string, updateUserDto: UpdateUserDto) {
+    try {
+      await this.userRepository.update(id, updateUserDto);
+      return this.findOne(id)
+    } catch (error) {
+      this.handleDBErrors(error);
+    }
+  }
+
+  async findOne( id: string ) {
+
+    let user: User;
+
+    if ( isUUID(id) ) {
+      user = await this.userRepository.findOneBy({ id });
+    } 
+
+    if ( !user ) 
+      throw new NotFoundException(`Client with id ${ id } not found`);
+
+    return user;
   }
 
   async resetPassword(newPassword: string, resetToken: string) {

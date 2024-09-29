@@ -72,7 +72,7 @@ export class ClientsService {
 
     const client = await this.clientRepository.preload({ id, ...toUpdate });
 
-    if (!client) throw new NotFoundException('Client with id: ' + id + 'not found') 
+    if (!client) throw new NotFoundException(`No se encuentra un cliente con el id ${id}.`) 
 
       const queryRunner = this.dataSource.createQueryRunner();
       await queryRunner.connect();
