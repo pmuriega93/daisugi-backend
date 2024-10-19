@@ -27,7 +27,7 @@ export class ClientsService {
 
   async create(createClientDto: CreateClientDto, user: User) {
     try {
-      const { audiences, ...clientDetails } = createClientDto;
+      const { audiences, groups, ...clientDetails } = createClientDto;
 
       const clientToSave = {
         ...clientDetails,
@@ -55,6 +55,12 @@ export class ClientsService {
     const bdAudience = await this.audienceService.findOne(description);
 
     return bdAudience;
+  }
+
+  private async selectGroup(description: string) {
+    const bdGroup = await this.audienceService.findOneGroup(description);
+
+    return bdGroup;
   }
 
   async findAll(paginationDto: PaginationDto, user?: User) {
@@ -90,8 +96,9 @@ export class ClientsService {
     const toUpdate = updateClientDto;
 
     const audiences = toUpdate.audiences && await Promise.all(toUpdate.audiences.map(audience => this.selectAudience(audience)));
+    const groups = toUpdate.groups && await Promise.all(toUpdate.groups.map(group => this.selectGroup(group)));
 
-    const client = await this.clientRepository.preload({ id, ...toUpdate, audiences });
+    const client = await this.clientRepository.preload({ id, ...toUpdate, audiences, groups });
 
     if (!client) throw new NotFoundException(`No se encuentra un cliente con el id ${id}.`) 
 

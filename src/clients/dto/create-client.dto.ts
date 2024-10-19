@@ -22,4 +22,11 @@ export class CreateClientDto {
     { each: true }
   )
   audiences: string[]
+
+  @IsOptional()
+  @IsArray()
+  @IsString(
+    { each: true }
+  )
+  groups: string[]
 }

@@ -1,6 +1,7 @@
 import { User } from "src/auth/entities/user.entity";
 import { Client } from "src/clients/entities/client.entity";
-import { BeforeInsert, BeforeUpdate, Column, Entity, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Group } from "src/audiences/entities/group.entity";
+import { BeforeInsert, BeforeUpdate, Column, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity('audiences')
 export class Audience {
@@ -23,6 +24,12 @@ export class Audience {
         (client) => client.audiences,
     )
     clients: Client[]
+
+    @OneToMany(
+      () => Group,
+      (group) => group.audience,
+    )
+    groups: Group[];
 
     
     @ManyToOne(

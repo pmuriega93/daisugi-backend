@@ -10,6 +10,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Group } from 'src/audiences/entities/group.entity';
 @Entity('clients')
 export class Client {
   @PrimaryGeneratedColumn('uuid')
@@ -47,12 +48,19 @@ export class Client {
 
   @JoinTable()
   @ManyToMany(
+    () => Group,
+    (group) => group.clients,
+    { eager: true, cascade: true }
+  )
+  groups: Group[];
+
+  @JoinTable()
+  @ManyToMany(
     () => Audience,
     (audience) => audience.clients,
     { eager: true, cascade: true }
   )
   audiences: Audience[]
-
 
   @BeforeInsert()
   checkFieldsBeforeInsert() {

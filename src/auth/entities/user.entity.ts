@@ -8,6 +8,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { Group } from 'src/audiences/entities/group.entity';
 
 @Entity('users')
 export class User {
@@ -49,6 +50,12 @@ export class User {
     (audience) => audience.user
   )
   audience: Audience;
+
+  @OneToMany(
+    () => Group,
+    (group) => group.user
+  )
+  group: Group;
 
   @BeforeInsert()
   checkFieldsBeforeInsert() {
