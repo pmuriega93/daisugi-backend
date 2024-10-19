@@ -9,6 +9,7 @@ import {
   Patch,
   ParseUUIDPipe,
   Param,
+  Delete,
   // SetMetadata,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -58,6 +59,15 @@ export class AuthController {
     return this.authService.updateUser(id, updateClientDto);
   }
 
+  
+  @Delete(':id')
+  @Auth()
+  delete(
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    return this.authService.deleteUser(id);
+  }
+
   @Get('check-status')
   @Auth()
   checkAuthStatus(@GetUser() user: User) {
@@ -91,42 +101,4 @@ export class AuthController {
     )
   }
 
-  @Get('private')
-  @UseGuards(AuthGuard())
-  testingPrivateRoute(
-    @Req() request: Express.Request,
-    @GetUser() user: User,
-    @GetUser('email') userEmail: string,
-
-    @RawHeaders() rawHeaders: string[],
-    @Headers() headers: IncomingHttpHeaders,
-  ) {
-    return {
-      ok: true,
-      message: 'Hola Mundo Private',
-      user,
-      userEmail,
-      rawHeaders,
-      headers,
-    };
-  }
-
-  @Get('private2')
-  @RoleProtected(ValidRoles.superUser, ValidRoles.admin)
-  @UseGuards(AuthGuard(), UserRoleGuard)
-  privateRoute2(@GetUser() user: User) {
-    return {
-      ok: true,
-      user,
-    };
-  }
-
-  @Get('private3')
-  @Auth(ValidRoles.admin)
-  privateRoute3(@GetUser() user: User) {
-    return {
-      ok: true,
-      user,
-    };
-  }
 }

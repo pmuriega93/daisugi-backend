@@ -64,7 +64,7 @@ export class AuthService {
       select: { email: true, password: true, fullName: true, id: true, roles: true }, //! OJO!
     });
 
-    if (!user)
+    if (!user || !user.isActive)
       throw new UnauthorizedException('Credenciales incorrectas');
 
     if (!bcrypt.compareSync(password, user.password))
@@ -129,26 +129,28 @@ export class AuthService {
   }
 
   async updateUser(id: string, updateUserDto: UpdateUserDto) {
-    try {
-      await this.userRepository.update(id, updateUserDto);
-      return this.findOne(id)
-    } catch (error) {
-      this.handleDBErrors(error);
-    }
+    await this.findOne(id)
+
+    await this.userRepository.update(id, updateUserDto);
+    
+    return this.findOne(id)
+  }
+
+
+  async deleteUser(id: string) {
+    await this.updateUser(id, { isActive: false })
+
+    return `User with id ${id} deleted succesfully`
   }
 
   async findOne( id: string ) {
+      const user = await this.userRepository.findOneBy({ id });
 
-    let user: User;
+      if ( !user || !user.isActive ) 
+        throw new NotFoundException(`User with id ${ id } not found`);
+  
+      return user;
 
-    if ( isUUID(id) ) {
-      user = await this.userRepository.findOneBy({ id });
-    } 
-
-    if ( !user ) 
-      throw new NotFoundException(`Client with id ${ id } not found`);
-
-    return user;
   }
 
   async resetPassword(newPassword: string, resetToken: string) {
@@ -187,7 +189,7 @@ export class AuthService {
   private handleDBErrors(error: any): never {
     if (error.code === '23505') throw new BadRequestException(error.detail);
 
-    console.log(error);
+    console.log(error)
 
     throw new InternalServerErrorException('chequear server logs');
   }
