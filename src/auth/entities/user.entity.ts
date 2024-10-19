@@ -1,3 +1,4 @@
+import { Audience } from 'src/audiences/entities/audience.entity';
 import { Client } from '../../clients/entities/client.entity';
 import {
   BeforeInsert,
@@ -42,6 +43,12 @@ export class User {
     (client) => client.user
   )
   client: Client;
+
+  @OneToMany(
+    () => Audience,
+    (audience) => audience.user
+  )
+  audience: Audience;
 
   @BeforeInsert()
   checkFieldsBeforeInsert() {

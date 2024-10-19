@@ -36,7 +36,7 @@ export class AuthController {
   }
 
   @Post('create-user')
-  @Auth(ValidRoles.admin)
+  @Auth(ValidRoles.admin, ValidRoles.superUser)
   createUser(
     @Body() createUserDto: CreateUserDto,
     @GetUser() user: User
@@ -65,7 +65,7 @@ export class AuthController {
   }
 
   @Patch('change-password')
-  @Auth()
+  @Auth(ValidRoles.admin, ValidRoles.superUser)
   changePassword(
     @Body() changePasswordDto: ChangePasswordDto,
     @GetUser() user: User

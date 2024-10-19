@@ -13,6 +13,7 @@ import { Client } from './entities/client.entity';
 import { DataSource, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/auth/entities/user.entity';
+import { AudiencesService } from 'src/audiences/audiences.service';
 
 @Injectable()
 export class ClientsService {
@@ -20,22 +21,40 @@ export class ClientsService {
     @InjectRepository(Client)
     private readonly clientRepository: Repository<Client>,
 
+    private readonly audienceService: AudiencesService,
     private readonly dataSource: DataSource,
   ) {}
 
   async create(createClientDto: CreateClientDto, user: User) {
     try {
-      const clientDetails = createClientDto;
-      const client = this.clientRepository.create({
-        ...clientDetails,
-        user
-      });
+      const { audiences, ...clientDetails } = createClientDto;
 
-      await this.clientRepository.save(client);
+      const clientToSave = {
+        ...clientDetails,
+        user,
+        audiences: []
+      };
+
+      if(audiences) {
+        const audiencesToSave = await Promise.all(audiences.map(audience => this.selectAudience(audience)));
+        clientToSave.audiences = audiencesToSave;
+      } else {
+        delete clientToSave.audiences
+      }
+
+      const dbClient = this.clientRepository.create(clientToSave);
+
+      await this.clientRepository.save(dbClient);
 
     } catch (error) {
       this.handleDBExceptions(error);
     }
+  }
+
+  private async selectAudience(description: string) {
+    const bdAudience = await this.audienceService.findOne(description);
+
+    return bdAudience;
   }
 
   async findAll(paginationDto: PaginationDto, user?: User) {
@@ -70,7 +89,9 @@ export class ClientsService {
   async update(id: string, updateClientDto: UpdateClientDto, user: User) {
     const toUpdate = updateClientDto;
 
-    const client = await this.clientRepository.preload({ id, ...toUpdate });
+    const audiences = toUpdate.audiences && await Promise.all(toUpdate.audiences.map(audience => this.selectAudience(audience)));
+
+    const client = await this.clientRepository.preload({ id, ...toUpdate, audiences });
 
     if (!client) throw new NotFoundException(`No se encuentra un cliente con el id ${id}.`) 
 

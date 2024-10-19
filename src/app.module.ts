@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { ClientsModule } from './clients/clients.module';
 import { CommonModule } from './common/common.module';
 import { MailerModule } from './mailer/mailer.module';
+import { AudiencesModule } from './audiences/audiences.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { MailerModule } from './mailer/mailer.module';
     ClientsModule,
     CommonModule,
     MailerModule,
+    AudiencesModule,
   ],
 })
 export class AppModule {}
