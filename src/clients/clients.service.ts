@@ -72,10 +72,10 @@ export class ClientsService {
     });
 
     if (user) {
-      return clients.filter(client => client.user.id === user.id)
+      return clients.filter(client => client.user.id === user.id && client.isActive)
     }
 
-    return clients;
+    return clients.filter(client => client.isActive);
   }
   async findOne( term: string ) {
 
@@ -85,7 +85,7 @@ export class ClientsService {
       client = await this.clientRepository.findOneBy({ id: term });
     } 
 
-    if ( !client ) 
+    if ( !client || !client.isActive )
       throw new NotFoundException(`Client with id ${ term } not found`);
 
     return client;
@@ -120,9 +120,16 @@ export class ClientsService {
       }
   }
 
-  async remove(id: string) {
+  async remove(id: string, user: User) {
     const client = await this.findOne( id );
-    await this.clientRepository.remove( client );
+
+    await this.update(id, { 
+      isActive: false,
+     },
+      user
+    )
+
+    return `Client with id ${ client.id } deleted succesfully`;
   }
 
 

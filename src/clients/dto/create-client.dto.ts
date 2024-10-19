@@ -1,4 +1,4 @@
-import { IsArray, IsEmail, IsOptional, IsString, MinLength } from 'class-validator';
+import { IsArray, IsBoolean, IsEmail, IsOptional, IsString, MinLength } from 'class-validator';
 
 export class CreateClientDto {
   @IsString()
@@ -15,6 +15,10 @@ export class CreateClientDto {
 
   @IsString()
   phone: string;
+
+  @IsOptional()
+  @IsBoolean()
+  isActive?: boolean; 
 
   @IsOptional()
   @IsArray()

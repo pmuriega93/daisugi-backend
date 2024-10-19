@@ -55,7 +55,10 @@ export class ClientsController {
 
   @Delete(':id')
   @Auth()
-  remove(@Param('id', ParseUUIDPipe) id: string) {
-    return this.clientsService.remove(id);
+  remove(
+    @Param('id', ParseUUIDPipe) id: string,
+    @GetUser() user: User
+  ) {
+    return this.clientsService.remove(id, user);
   }
 }
