@@ -1,4 +1,4 @@
-import { IsArray, IsString, MinLength } from "class-validator";
+import { IsArray, IsBoolean, IsOptional, IsString, MinLength } from "class-validator";
 
 export class CreateGroupDto {
 
@@ -7,5 +7,9 @@ export class CreateGroupDto {
     description: string;
 
     @IsString()
-    audience: string;   
+    audience: string;
+
+    @IsOptional()
+    @IsBoolean()
+    isActive?: boolean;
 }

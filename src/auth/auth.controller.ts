@@ -61,7 +61,7 @@ export class AuthController {
 
   
   @Delete(':id')
-  @Auth()
+  @Auth(ValidRoles.admin, ValidRoles.superUser)
   delete(
     @Param('id', ParseUUIDPipe) id: string,
   ) {

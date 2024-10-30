@@ -13,6 +13,11 @@ export class Group {
     })
     description: string;
 
+    @Column('bool', {
+        default: true,
+    })
+    isActive: boolean;
+
     @ManyToOne(
         () => Audience,
         (audience) => audience.groups,

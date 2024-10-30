@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe } from '@nestjs/common';
 import { AudiencesService } from './audiences.service';
 import { CreateAudienceDto } from './dto/create-audience.dto';
 import { UpdateAudienceDto } from './dto/update-audience.dto';
@@ -32,19 +32,27 @@ export class AudiencesController {
 
   @Get(':id')
   @Auth()
-  findOneAudience(@Param('id') id: string) {
+  findOneAudience(@Param('id', ParseUUIDPipe) id: string) {
     return this.audiencesService.findOne(id);
   }
 
   @Patch(':id')
   @Auth()
-  updateAudience(@Param('id') id: string, @Body() updateAudienceDto: UpdateAudienceDto) {
-    return this.audiencesService.update(+id, updateAudienceDto);
+  updateAudience(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateAudienceDto: UpdateAudienceDto,
+    @GetUser() user: User
+  ) {
+    return this.audiencesService.updateAudience(id, updateAudienceDto, user);
   }
 
   @Delete(':id')
-  removeAudience(@Param('id') id: string) {
-    return this.audiencesService.remove(+id);
+  @Auth()
+  removeAudience(
+    @Param('id', ParseUUIDPipe) id: string,
+    @GetUser() user: User
+  ) {
+    return this.audiencesService.removeAudience(id, user);
   }
 
   
@@ -60,7 +68,7 @@ export class AudiencesController {
   @Get('groups/:audienceId')
   @Auth()
   findAllGroups(
-    @Param('audienceId') audienceId: string,
+    @Param('audienceId', ParseUUIDPipe) audienceId: string,
     @Query() paginationDto: PaginationDto,
     @GetUser() user: User
   ) {
@@ -70,20 +78,29 @@ export class AudiencesController {
   @Get('groups/:audienceId/:id')
   @Auth()
   findOneGroup(
-    @Param('audienceId') audienceId: string,
-    @Param('id') id: string,
+    @Param('audienceId', ParseUUIDPipe) audienceId: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @GetUser() user: User
   ) {
     return this.audiencesService.findOneGroup(id, audienceId, user);
   }
 
   @Patch('groups/:id')
-  updateGroup(@Param('id') id: string, @Body() updateGroupDto: UpdateGroupDto) {
-    return this.audiencesService.updateGroup(id, updateGroupDto);
+  @Auth()
+  updateGroup(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateGroupDto: UpdateGroupDto,
+    @GetUser() user: User
+  ) {
+    return this.audiencesService.updateGroup(id, updateGroupDto, user);
   }
 
   @Delete('groups/:id')
-  removeGroup(@Param('id') id: string) {
-    return this.audiencesService.removeGroup(id);
+  @Auth()
+  removeGroup(
+    @Param('id', ParseUUIDPipe) id: string,
+    @GetUser() user: User
+  ) {
+    return this.audiencesService.removeGroup(id, user);
   }
 }

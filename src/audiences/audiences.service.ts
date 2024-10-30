@@ -3,7 +3,7 @@ import { CreateAudienceDto } from './dto/create-audience.dto';
 import { UpdateAudienceDto } from './dto/update-audience.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Audience } from './entities/audience.entity';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { User } from 'src/auth/entities/user.entity';
 import { Group } from './entities/group.entity';
@@ -20,12 +20,15 @@ export class AudiencesService {
     @InjectRepository(Group)
     private readonly groupRepository: Repository<Group>,
 
+    private readonly dataSource: DataSource,
+
   ) {}
 
  async create(createAudienceDto: CreateAudienceDto, user: User) {
     try {
+      const { groups, ...rest } = createAudienceDto;
       const audienceToSave ={
-        ...createAudienceDto,
+        ...rest,
         user,
       };
 
@@ -46,26 +49,57 @@ export class AudiencesService {
     });
 
     if (user)
-      return audiences.filter(audience => audience.user.id === user.id)
+      return audiences.filter(audience => audience.user.id === user.id &&  audience.isActive)
 
-    return audiences;
+    return audiences.filter(audience => audience.isActive);
   }
 
   async findOne(description: string) {
     const audience = await this.audienceRepository.findOneBy( { description } );
 
-    if (!audience)
+    if (!audience || !audience.isActive)
       throw new NotFoundException(`Audience ${ description } not found`);
 
     return audience;
   }
 
-  update(id: number, updateAudienceDto: UpdateAudienceDto) {
-    return `This action updates a #${id} audience`;
+  async updateAudience(id: string, updateAudienceDto: UpdateAudienceDto, user: User) {
+    const toUpdate = updateAudienceDto;
+
+    const groups = toUpdate.groups && await Promise.all(toUpdate.groups.map(group => this.findOneGroup(group))); 
+
+    const audience = await this.audienceRepository.preload({ id, ...toUpdate, groups });
+
+    if (!audience) throw new NotFoundException(`Audience with id ${id} not found.`)
+
+      const queryRunner = this.dataSource.createQueryRunner();
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+
+      try {
+        audience.user = user;
+        await queryRunner.manager.save(audience);
+        await queryRunner.commitTransaction();
+        await queryRunner.release();
+        
+      } catch (error) {
+        await queryRunner.rollbackTransaction();
+        await queryRunner.release();
+        this.handleDBExceptions(error);
+      }
+
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} audience`;
+  async removeAudience(id: string, user: User) {
+    const audience = await this.findOne( id );
+
+    await this.updateAudience(id, { 
+      isActive: false,
+     },
+     user
+    )
+
+    return `Audience with id ${ audience.id } deleted succesfully`;
   }
 
 
@@ -97,25 +131,58 @@ export class AudiencesService {
     });
 
     
-    return groups.filter(group => group.user.id === user.id && group.audience.id === audience)
+    return groups.filter(group => group.user.id === user.id && group.audience.id === audience && group.isActive)
 
   }
 
   async findOneGroup(description: string, audience?: string, user?: User) {
     const group = await this.groupRepository.findOneBy( { description } );
 
-    if (!group)
+    if (!group || !group.isActive || !group.audience)
+      throw new NotFoundException(`Group ${ description } not found`);
+
+    if (group.user.id !== user.id)
       throw new NotFoundException(`Group ${ description } not found`);
 
     return group;
   }
 
-  updateGroup(id: string, updateGroupDto: UpdateGroupDto) {
-    return `This action updates a #${id} group`;
+  async updateGroup(id: string, updateGroupDto: UpdateGroupDto, user: User) {
+    const toUpdate = updateGroupDto;
+
+    const audience = await this.audienceRepository.findOneBy({ id: toUpdate.audience }); 
+
+    const group = await this.groupRepository.preload({ id, ...toUpdate, audience });
+
+    if (!group) throw new NotFoundException(`Group with id ${id} not found.`)
+
+      const queryRunner = this.dataSource.createQueryRunner();
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+
+      try {
+        group.user = user;
+        await queryRunner.manager.save(group);
+        await queryRunner.commitTransaction();
+        await queryRunner.release();
+        
+      } catch (error) {
+        await queryRunner.rollbackTransaction();
+        await queryRunner.release();
+        this.handleDBExceptions(error);
+      }
   }
 
-  removeGroup(id: string) {
-    return `This action removes a #${id} group`;
+  async removeGroup(id: string, user: User) {
+    const group = await this.groupRepository.findOneBy( { id } );
+
+    await this.updateGroup(id, { 
+      isActive: false,
+     },
+     user
+    )
+
+    return `Group with id ${ group.id } deleted succesfully`;
   }
 
 

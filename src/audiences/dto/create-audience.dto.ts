@@ -1,4 +1,4 @@
-import { IsArray, IsOptional, IsString, MinLength } from "class-validator";
+import { IsArray, IsBoolean, IsOptional, IsString, MinLength } from "class-validator";
 
 export class CreateAudienceDto {
 
@@ -12,4 +12,14 @@ export class CreateAudienceDto {
     )
     type: string[];
 
+    @IsOptional()
+    @IsArray()
+    @IsString(
+        { each: true }
+    )
+    groups?: string[];
+
+    @IsOptional()
+    @IsBoolean()
+    isActive?: boolean;
 }

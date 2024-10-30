@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsEmail, IsOptional, IsString, MinLength } from 'class-validator';
+import { IsArray, IsBoolean, IsEmail, IsOptional, IsString, Matches, MinLength } from 'class-validator';
 
 export class CreateClientDto {
   @IsString()
@@ -14,6 +14,7 @@ export class CreateClientDto {
   file: string;
 
   @IsString()
+  @Matches('/^(\+?\d{1,3})?[-.\s]?(\(?\d{2,3}?\)?)[-.\s]?\d{3}[-.\s]?\d{4}$/gm')
   phone: string;
 
   @IsOptional()

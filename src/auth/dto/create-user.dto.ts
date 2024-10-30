@@ -25,6 +25,12 @@ export class CreateUserDto {
   password: string;
 
   @IsString()
+  @Matches(/^(\+?\d{1,3})?[-.\s]?(\(?\d{2,3}?\)?)[-.\s]?\d{3}[-.\s]?\d{4}$/gm, {
+    message: 'Debe ingresar un número de teléfono válido',
+  })
+  phone: string;
+
+  @IsString()
   @MinLength(1)
   fullName: string;
 

@@ -19,6 +19,11 @@ export class Audience {
     })
     type: string[];
 
+    @Column('bool', {
+      default: true,
+    })
+    isActive: boolean;
+
     @ManyToMany(
         () => Client,
         (client) => client.audiences,
