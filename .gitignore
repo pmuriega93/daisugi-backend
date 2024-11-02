@@ -13,7 +13,7 @@ yarn-error.log*
 lerna-debug.log*
 
 /postgres
-
+postgres/
 /pgdata
 
 # OS
