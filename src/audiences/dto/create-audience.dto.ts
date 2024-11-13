@@ -1,16 +1,15 @@
-import { IsArray, IsBoolean, IsOptional, IsString, MinLength } from "class-validator";
+import { IsArray, IsBoolean, IsIn, IsOptional, IsString, MinLength } from "class-validator";
+import { ValidAudiences } from "../interfaces/valid-audiences";
 
 export class CreateAudienceDto {
 
     @IsString()
     @MinLength(1)
     description: string;
-    
-    @IsArray()
-    @IsString(
-        { each: true }
-    )
-    type: string[];
+
+    @IsString()
+    @IsIn(Object.values(ValidAudiences))
+    type: string;
 
     @IsOptional()
     @IsArray()

@@ -45,7 +45,7 @@ export class AuthController {
     return this.authService.login(loginUserDto);
   }
 
-  @Patch(':id')
+  @Patch('/update/:id')
   @Auth()
   update(
     @Param('id', ParseUUIDPipe) id: string,
@@ -75,15 +75,7 @@ export class AuthController {
     @Body() changePasswordDto: ChangePasswordDto,
     @GetUser() user: User
   ) {
-    return this.authService.changePassword(user, changePasswordDto);
-  }
-
-
-  @Post('forgot-password')
-  async forgotPassword(
-    @Body() forgotPasswordDto: ForgotPasswordDto,
-  ) {
-    return this.authService.forgotPassword(forgotPasswordDto.email)
+    return this.authService.changePassword(changePasswordDto, user);
   }
 
   @Patch('reset-password')

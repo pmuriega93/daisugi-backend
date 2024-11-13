@@ -12,6 +12,11 @@ import { CreateGroupDto } from './dto/create-group.dto';
 export class AudiencesController {
   constructor(private readonly audiencesService: AudiencesService) {}
 
+  @Get('audience-types')
+  audienceTypes() {
+    return this.audiencesService.getAudienceTypes();
+  }
+
   @Post('create-audience')
   @Auth()
   createAudience(

@@ -46,6 +46,8 @@ export class ClientsService {
 
       await this.clientRepository.save(dbClient);
 
+      return dbClient;
+
     } catch (error) {
       this.handleDBExceptions(error);
     }
@@ -123,13 +125,17 @@ export class ClientsService {
   async remove(id: string, user: User) {
     const client = await this.findOne( id );
 
-    await this.update(id, { 
+    if (!client)
+      return;
+      
+    const removed = await this.update(id, { 
       isActive: false,
      },
       user
     )
 
-    return `Client with id ${ client.id } deleted succesfully`;
+    return removed;
+
   }
 
 

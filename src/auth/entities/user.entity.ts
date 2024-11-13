@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { Group } from 'src/audiences/entities/group.entity';
 import { ApiProperty } from '@nestjs/swagger';
+import { Mail } from 'src/mailer/entities/mail.entity';
 
 
 @Entity('users')
@@ -95,6 +96,13 @@ export class User {
     (group) => group.user
   )
   group: Group;
+
+  @ApiProperty()
+  @OneToMany(
+    () => Mail,
+    (mail) => mail.user
+  )
+  mails: Mail;
 
   @BeforeInsert()
   checkFieldsBeforeInsert() {

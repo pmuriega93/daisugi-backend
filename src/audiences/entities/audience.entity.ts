@@ -14,10 +14,9 @@ export class Audience {
     description: string;
 
     @Column('text', {
-        array: true,
-        default: ['enterprise']
+        default: 'empresa'
     })
-    type: string[];
+    type: string;
 
     @Column('bool', {
       default: true,

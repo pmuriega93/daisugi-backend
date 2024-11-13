@@ -33,15 +33,9 @@ import { ResetToken } from './entities/reset-token.entity';
         };
       },
     }),
-    // JwtModule.register({
-    // secret: process.env.JWT_SECRET,
-    // signOptions: {
-    //   expiresIn:'2h'
-    // }
-    // })
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, MailerService],
+  providers: [AuthService, JwtStrategy],
   exports: [TypeOrmModule, JwtStrategy, PassportModule, JwtModule],
 })
 export class AuthModule {}

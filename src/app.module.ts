@@ -22,10 +22,10 @@ import { AudiencesModule } from './audiences/audiences.module';
       autoLoadEntities: true,
       synchronize: true,
     }),
+    MailerModule,
     AuthModule,
     ClientsModule,
     CommonModule,
-    MailerModule,
     AudiencesModule,
   ],
 })

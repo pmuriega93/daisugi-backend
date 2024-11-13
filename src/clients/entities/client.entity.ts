@@ -10,7 +10,8 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Group } from 'src/audiences/entities/group.entity';
+import { Group } from "src/audiences/entities/group.entity";
+import { Type } from 'class-transformer';
 @Entity('clients')
 export class Client {
   @PrimaryGeneratedColumn('uuid')
@@ -33,6 +34,12 @@ export class Client {
 
   @Column('text')
   fullName: string;
+
+  @Type(() => Date)
+  @Column('text', {
+    default: null
+  })
+  birthday: Date;
 
   @Column('bool', {
     default: true,
@@ -65,6 +72,7 @@ export class Client {
   @BeforeInsert()
   checkFieldsBeforeInsert() {
     this.email = this.email.toLowerCase().trim();
+    this.fullName = this.fullName.toLowerCase().trim();
   }
 
   @BeforeUpdate()

@@ -3,13 +3,12 @@ import { Address } from 'nodemailer/lib/mailer';
 
 export class SendEmailDto {
   @IsString()
-  @IsEmail()
   @IsOptional()
-  from?: Address;
+  from?: string;
 
   @IsArray()
   @IsOptional()
-  recipients?: Address[];
+  to?: string[];
 
   @IsString()
   @MinLength(1)
@@ -18,12 +17,11 @@ export class SendEmailDto {
   @IsString()
   html: string;
 
-  @IsString()
-  @MinLength(1)
-  @IsOptional()
-  text?: string;
-
   @IsOptional()
   placeholderReplacement?: Record<string, string>;
+
+  @IsString()
+  @IsOptional()
+  scheduledAt?: string;
 
 }

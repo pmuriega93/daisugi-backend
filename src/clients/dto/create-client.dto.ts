@@ -32,8 +32,16 @@ export class CreateClientDto {
     description: 'Teléfono del cliente',
   })
   @IsString()
-  @Matches('/^(\+?\d{1,3})?[-.\s]?(\(?\d{2,3}?\)?)[-.\s]?\d{3}[-.\s]?\d{4}$/gm')
   phone: string;
+
+  @ApiProperty({
+    example: '1167953233',
+    description: 'Fecha de nacimiento del cliente',
+  })
+  @IsOptional()
+  @IsString()
+  birthday?: string;
+
 
   @ApiProperty({
     example: 'true',
